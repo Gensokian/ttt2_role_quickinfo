@@ -7,103 +7,126 @@
 
 local draw = draw
 -- local center = Vector(ScrW()*0.5,ScrH()*0.5,0) -- May be useful later.
-local primarycolor = VSKIN.GetBackgroundColor()
-local transparentprimary = ColorAlpha(primarycolor, 200)
-local outlinecolor = util.GetDefaultColor(primarycolor)
 
-local function screenGrid(x, y, xend, yend)
-    y = y or x
-    xend = xend or x
-    yend = yend or y
+local function scrGrid(place, axis, gridsize)
+    print("")
+    print("")
+    print("")
+    print("Screen Width:")
+    print(ScrW())
+    print("")
+    print("Screen Height")
+    print(ScrH())
 
-    x = ScrW() / 12 * x
-    xend = ScrW() / 12 * xend
-    y = ScrH() / 12 * y
-    yend = ScrH() / 12 * yend
-    return x, y, xend, yend
+    local out
+    if axis == "x" then
+        out = ScrW() / gridsize * place
+        print("HORIZONTAL AXIS WAS USED!")
+        print(out)
+    elseif axis == "y" then
+        out = ScrH() / gridsize * place
+        print("VERTICAL AXIS WAS USED!")
+        print(out)
+    end
+    return out
 end
 
 local function drawQuickinfo()
     hook.Add("DrawOverlay", "TTT2DrawQuickinfo", function()
+
+        local primarycolor = VSKIN.GetBackgroundColor()
+        local transparentprimary = ColorAlpha(primarycolor, 210)
+        local outlinecolor = util.GetDefaultColor(primarycolor)
+        local textboxcolor = Color(255,255,5,255)
+
         -- get classcolor
         local roleColor = LocalPlayer():GetRoleColor()
         local roleColorText = util.GetDefaultColor(roleColor)
+        local str_role = roles.GetByIndex(LocalPlayer():GetSubRole())
 
         --Main Background
-        draw.Box(screenGrid(0, 1, 12, 11), 1, transparentprimary)
-        draw.OutlinedBox(screenGrid(0, 1, 12, 11), 1, outlinecolor)
-        draw.ShadowedText("TTT2 by Alf21, Saibotk, Minetopia, Lebroomer - Quickinfo by James", screenGrid(0, 0), roleColorText, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 0.5)
-
+        --	   	draw.Box(screenGrid(0, 1, 12, 11), transparentprimary)
+        draw.Box(scrGrid(0, "x", 12), scrGrid(1, "y", 12), scrGrid(12, "x", 12), scrGrid(10, "y", 12), transparentprimary) --Uses relative coordinates for the width and height!
+        draw.OutlinedBox(scrGrid(-1, "x", 12), scrGrid(1, "y", 12), scrGrid(14, "x", 12), scrGrid(10, "y", 12), 5, outlinecolor)
+        draw.ShadowedText("TTT2 by Alf21, Saibotk, Minetopia, Lebroomer - Quickinfo by James", "Trebuchet24", 0, 0, roleColor, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1)
 
         --Role Title Strip
-        draw.Box(screenGrid(0, 1, 12, 11), 1, roleColor)
-        draw.OutlinedBox(screenGrid(0, 1, 12, 11), 1, outlinecolor)
-        -- Roletext
-        draw.ShadowedText("STR_ROLE", "Trebuchet24", screenGrid(7, 2.5), roleColorText, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2) -- WILL BE REPLACED BY THE ACTUAL ROLE STRING ONCE THAT IS IMPLEMENTED
+        draw.Box(scrGrid(0, "x", 12), scrGrid(2, "y", 12), scrGrid(12, "x", 12), scrGrid(1, "y", 12), roleColor) --Uses relative coordinates for the width and height!
+        draw.OutlinedBox(scrGrid(-1, "x", 12), scrGrid(2, "y", 12), scrGrid(14, "x", 12), scrGrid(1, "y", 12), 1, outlinecolor)
+        draw.ShadowedText(str_role, "Trebuchet24", scrGrid(6, "x", 12), scrGrid(2.5, "y", 12), roleColorText, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 4)
 
-
-        draw.Box(screenGrid(0, 2, 12, 3), 3, primarycolor)
-        draw.OutlinedBox(screenGrid(0, 2, 12, 3), 3, outlinecolor)
+        -- Role Description BG
+        draw.Box(scrGrid(1, "x", 12), scrGrid(4, "y", 12), scrGrid(10, "x", 12), scrGrid(1, "y", 12), primarycolor)
+        draw.OutlinedBox(scrGrid(1, "x", 12), scrGrid(4, "y", 12), scrGrid(10, "x", 12), scrGrid(1, "y", 12), 1, outlinecolor)
         -- Role Description
-        local desc_wrapped = draw.GetWrappedText("STR_ROLEDESCRIPTION WHICH IS FOR SOME REASON STUPIDLY LONG HOLY COW I SHOULD STOP NOW FOR THE SAKE OF ALL PEOPLE THAT ARE INVOLVED IN THIS FACILITY AND I AM AND I AM AND I AM", ({screenGrid(10)})[1], "Trebuchet24") --Stupid text quickly written on mobile device using autocucumber
+        local desc_wrapped = draw.GetWrappedText("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", scrGrid(9.5, "x", 12), "Trebuchet24") --Stupid text quickly written on mobile device using autocucumber
 
-        local lineheight = 2.5
+        local lineheight = 2.4
         for i = 1, #desc_wrapped do
-            line_pos = screenGrid(lineheight)
+            line_pos = scrGrid(lineheight, "x", 12)
             draw.ShadowedText(
                 desc_wrapped[i],
                 "Trebuchet24",
-                screenGrid(6),
-                line_pos[1],
-                colorDescription,
+                scrGrid(6, "x", 12),
+                line_pos,
+                roleColorText,
                 TEXT_ALIGN_CENTER,
                 TEXT_ALIGN_CENTER
             )
-            lineheight = lineheight + 0.1
+            lineheight = lineheight + 0.125
         end
 
         --Miniinfo
-        --    draw.Box(screenGrid(1, 4, 11, 6), 3, primarycolor)
-        --    draw.OutlinedBox(screenGrid(1, 4, 11, 6), 3, outlinecolor)
+        --	draw.Box(screenGrid(1, 4, 11, 6), 3, primarycolor)
+        --	draw.OutlinedBox(screenGrid(1, 4, 11, 6), 3, outlinecolor)
         --
 
         --Infopane 1
-        draw.Box(screenGrid(1, 6, 6, 10), 3, primarycolor)
-        draw.OutlinedBox(screenGrid(1, 6, 6, 10), 3, outlinecolor)
-
+        draw.Box(scrGrid(1, "x", 12), scrGrid(6, "y", 12), scrGrid(5, "x", 12), scrGrid(4, "y", 12), primarycolor)
+        draw.OutlinedBox(scrGrid(1, "x", 12), scrGrid(6, "y", 12), scrGrid(5, "x", 12), scrGrid(4, "y", 12), 1, outlinecolor)
+        draw.Line(scrGrid(1, "x", 12), scrGrid(7, "y", 12), scrGrid(6, "x", 12), scrGrid(7, "y", 12), outlinecolor)
         -- Text Infopane 1 Title
-        draw.ShadowedText("Hints", "Trebuchet24", screenGrid(7, 2.5), roleColorText, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1.5)
+        draw.ShadowedText("Sick gameplay strats", "Trebuchet24", scrGrid(3.5, "x", 12), scrGrid(6.5, "y", 12), roleColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 4)
 
         -- Text Infopane 1 Text
-        draw.ShadowedText("Hints", "Trebuchet24", screenGrid(7, 2.5), roleColorText, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1.5)
-        local hint_wrapped = draw.GetWrappedText("STR_ROLEDESCRIPTION WHICH IS FOR SOME REASON STUPIDLY LONG HOLY COW I SHOULD STOP NOW FOR THE SAKE OF ALL PEOPLE THAT ARE INVOLVED IN THIS FACILITY AND I AM AND I AM AND I AM", ({screenGrid(10)})[1], "Trebuchet24") --Stupid text quickly written on mobile device using autocucumber
+        local hint_wrapped = draw.GetWrappedText("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", scrGrid(3, "x", 12), "Trebuchet24") --Stupid text quickly written on mobile device using autocucumber
 
-        local hintlineheight = 2.5
+        local hintlineheight = 4.25
         for i = 1, #hint_wrapped do
-            hintline_pos = screenGrid(hintlineheight)
+            hintline_pos = scrGrid(hintlineheight, "x", 12)
             draw.ShadowedText(
                 hint_wrapped[i],
                 "Trebuchet24",
-                screenGrid(6),
-                hintline_pos[1],
-                colorDescription,
+                scrGrid(3.5, "x", 12),
+                hintline_pos,
+                outlinecolor,
                 TEXT_ALIGN_CENTER,
                 TEXT_ALIGN_CENTER
             )
-            hintlineheight = hintlineheight + 0.1
+            hintlineheight = hintlineheight + 0.125
         end
 
-        --Infopane 2
-        draw.Box(screenGrid(8, 6, 11, 10), 3, primarycolor)
-        draw.OutlinedBox(screenGrid(8, 6, 11, 10), 3, outlinecolor)
+        -- Infopane 2
+        draw.Box(scrGrid(6, "x", 12), scrGrid(6, "y", 12), scrGrid(5, "x", 12), scrGrid(4, "y", 12), primarycolor)
+        draw.OutlinedBox(scrGrid(6, "x", 12), scrGrid(6, "y", 12), scrGrid(5, "x", 12), scrGrid(4, "y", 12), 1, outlinecolor)
+        draw.Line(scrGrid(6, "x", 12), scrGrid(7, "y", 12), scrGrid(11, "x", 12), scrGrid(7, "y", 12), outlinecolor)
+        -- Text Infopane 1 Title
+        draw.ShadowedText("Current Settings", "Trebuchet24", scrGrid(8.5, "x", 12), scrGrid(6.5, "y", 12), outlinecolor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 4)
+        draw.Line(scrGrid(6, "x", 12), scrGrid(8.5, "y", 12), scrGrid(11, "x", 12), scrGrid(8.5, "y", 12), outlinecolor)
+
+
+        draw.Line(scrGrid(7, "x", 12), scrGrid(7, "y", 12), scrGrid(7, "x", 12), scrGrid(10, "y", 12), outlinecolor)
+        draw.Line(scrGrid(8, "x", 12), scrGrid(7, "y", 12), scrGrid(8, "x", 12), scrGrid(10, "y", 12), outlinecolor)
+        draw.Line(scrGrid(9, "x", 12), scrGrid(7, "y", 12), scrGrid(9, "x", 12), scrGrid(10, "y", 12), outlinecolor)
+        draw.Line(scrGrid(10, "x", 12), scrGrid(7, "y", 12), scrGrid(10, "x", 12), scrGrid(10, "y", 12), outlinecolor)
 
     end)
 end
 
 function clearQuickinfo()
-
-
+    hook.Remove("DrawOverlay", "TTT2DrawQuickinfo")
 end
 
-
-bind.Register("Quickinfo", drawQuickinfo(), clearQuickinfo(), "Miscellaneous", "Show Quick Roleinfo", MOUSE3)
+print("Register Keybind!")
+bind.Register("Quickinfo", drawQuickinfo, clearQuickinfo, nil, "Show Quick Roleinfo", KEY_E)
+print("Loaded TTT2 Quickinfo!")
