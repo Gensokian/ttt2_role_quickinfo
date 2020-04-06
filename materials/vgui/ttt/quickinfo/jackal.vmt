@@ -1,0 +1,5 @@
+"LightmappedGeneric"
+{
+	"$basetexture" "vgui/ttt/quickinfo/jackal"
+	"$translucent" 1
+}
